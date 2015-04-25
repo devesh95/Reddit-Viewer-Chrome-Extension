@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" /> 
+		<script type="text/javascript" src="../scripts/imports/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="../scripts/imports/jquery.timeago.js"></script>
+		<script type="text/javascript" src="../scripts/imports/angular.js"></script>
+		<script type="text/javascript" src="../scripts/main.js"></script>
+		<script type="text/javascript" src="../scripts/factories/redditSearchFactory.js"></script>
+		<link type="text/css" rel="stylesheet" href="../styles/reset.css"/>
+		<link type="text/css" rel="stylesheet" href="../styles/main.css"/>
+		<link type="text/css" rel="stylesheet" href="../styles/font-awesome/css/font-awesome.min.css"/>
+	</head>
+	
+	<body>
+		<div id="container" ng-app="reddit++" ng-csp xmlns:ng="http://angularjs.org">
+			<div id="sidebar">
+				<div ng-controller="subredditController">
+					<ul ng-hide="loading">
+						<h2>Reddit<span style="color:#DDD">++<span></h2>
+						<h3>Search Reddit</h3>
+						<form id="searchform" name="searchform">
+							<input id="searchbox" name="searchbox" type="text" placeholder="Search..." ng-model="searchText"></input>
+						</form>
+						<h3>Popular Subreddits</h3>
+						<li ng-repeat="subreddit in subreddits" ng-class="subreddit.state">
+							<h6 ng-click="selectSubreddit(subreddit)">
+								{{subreddit.data.display_name}}
+							</h6>
+						</li>
+					</ul>
+					<div ng-show="loading" class="loading">
+						Loading popular subreddits...
+					</div>
+				</div>
+			</div>
+			
+			<div id="post-list-container">
+				<div id="post-list" ng-controller="postsController">
+					 <ul id="results" class="results" ng-hide="loading || redditSearch.loading">
+						<li ng-show="subreddit" ng-repeat="post in posts" ng-click="selectPost(post)" ng-class="post.state">
+								<div class="gutter">
+									<h4 class="score">{{post.data.score}}</h4>
+									<img src="{{post.data.thumbnail}}"/>
+								</div>
+								<div class="content">
+									<h4 class="title">{{post.data.title}}</h4>
+									<h6 class="ago small">{{post.data.created_utc | utcdatetolocal | timeago}} by 
+										<span>{{post.data.author}}</span>
+									</h6>
+									<h6 class="comment_count small">{{post.data.num_comments}} comments</h6>
+								</div>
+								<div style="clear:both;"></div>
+						</li>
+						<div ng-show="search">
+	                    	<li id="infinite-results" class="results" ng-repeat="post in redditSearch.items" ng-click="selectResult(post)"> 
+	                            <div class="gutter">
+									<h4 class="score">{{post.score}}</h4>
+								</div>
+								<div class="content">
+									<h4 class="title">{{post.title}}</h4>
+									<h6 class="ago small">{{post.created_utc | utcdatetolocal | timeago}} by 
+										<span>{{post.author}}</span>
+									</h6>
+									<h6 class="comment_count small">{{post.num_comments}} comments</h6>
+								</div>
+								<div clas="bottom" style="clear:both;"></div>
+	                    	</li>
+	                        <div id="noResults" ng-show="redditSearch.noResults"> No results found for your query. </div>
+	                        <div id="noMoreResults" ng-show="redditSearch.noMoreResults"> No more results found for your query. </div>
+                    	</div>
+					</ul>	
+					<div ng-show="loading || redditSearch.loading" class="loading">
+						Loading results...
+					</div>
+				</div>
+			</div>
+			
+			<div id="post-container">
+				<div ng-controller="redditController" id="post">
+					<div class="header" ng-hide="!post.created_utc">
+						<div class="top">
+							<img src="{{post.subredditheader}}"/>
+						</div>
+						
+						<div class="gutter">
+							<h3 class="score">{{post.score}}</h3>
+							<img src="{{post.thumbnail}}"  />
+						</div>
+						
+						<div class="content">
+							<h2 class="title">
+								<a href="{{rawUrl}}" target="_blank">
+									{{post.title}}
+								</a>
+								<span id="subredditCategory" ng-click="openSubreddit()">
+									{{post.subreddit}}
+								</span>
+							</h2>
+							<h6 class="domain">{{post.domain}}</h6>					 
+							<h6 class="posted small">submitted {{post.created_utc | utcdatetolocal | timeago}} by {{post.author}}</h6>
+						</div>
+						<div style="clear:both;"></div>
+					</div>
+
+					<p class="self-text" 
+					ng-hide="!post.selftext_html" 
+					ng-bind-html-unsafe="post.selftext_html"></p>	
+
+					<img src="{{post.full_image}}"
+						class="full-image"
+						ng-hide="!post.full_image"/>
+						
+					<iframe class="full-video" type="text/html"
+					  src="{{post.embedded_video_url}}"
+					  ng-hide="!post.embedded_video_url"
+					  frameborder="0">		</iframe>
+
+				
+					<div class="comments" ng-hide="!post.created_utc">
+						<div ng-show="loading" class="loading">
+							Loading comments....
+						</div>
+						<div ng-hide="loading">
+						<!-- Share buttons -->
+						<div id="share" ng-hide="!post.created_utc">
+
+							<a ng-click="copyUrl()" class="share-btn clipboard">
+								<i class="fa fa-clipboard"></i>
+							</a>
+							<!-- Twitter -->
+							<a href="http://twitter.com/share?text={{shareText}}" target="_blank" class="share-btn twitter">
+							    <i class="fa fa-twitter"></i>
+							</a>
+
+							<!-- Google Plus -->
+							<a href="https://plus.google.com/share?url={{rawUrl}}" target="_blank" class="share-btn google-plus">
+							    <i class="fa fa-google-plus"></i>
+							</a>
+
+							<!-- Facebook -->
+							<a href="http://www.facebook.com/sharer.php?s=100&p[title]={{post.title}}&p[url]={{rawUrl}}}&p[summary]={{shareText}}}" target="_blank" class="share-btn facebook">
+							    <i class="fa fa-facebook"></i>
+							</a>
+
+							<!-- LinkedIn -->
+							<a href="http://www.linkedin.com/shareArticle?url={{rawUrl}}&title={{post.title}}&summary={{shareText}}&source={{rawUrl}}" target="_blank" class="share-btn linkedin">
+							    <i class="fa fa-linkedin"></i>
+							</a>
+
+							<!-- Email -->
+							<a href="mailto:?body=<{{shareText}}>" target="_blank" class="share-btn email">
+							    <i class="fa fa-envelope"></i>
+							</a>
+						</div>
+						<div id="copybox" ng-show="showUrl">
+							<h3>URL to share:
+								<textarea id="copybox" rows="1" cols="65" ng-show="showUrl" ng-model="rawUrl"> 
+								</textarea>
+							</h3>
+						</div>
+							<h3>Comments</h3>
+							<ul>
+								<li ng-repeat="comment in comments">
+									<h6 class="user small"><em>{{comment.data.author}}</em> {{comment.data.created_utc | utcdatetolocal | timeago}}</h6>
+									<p class="comment body">{{comment.data.body}}</p>
+									<ul class="replies">
+										<li ng-repeat="reply in comment.data.replies.data.children" >
+											<div ng-include src="'replies.html'"></div>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>		
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
