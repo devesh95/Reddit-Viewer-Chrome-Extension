@@ -359,3 +359,11 @@ h6.small {
 	padding: 10px;
 	padding-left: 0px;
 }
+
+input[type=radio] {
+	margin-top: 5px;
+	margin-left: 10px;
+}
+label {
+	color: #17bb2c;
+}

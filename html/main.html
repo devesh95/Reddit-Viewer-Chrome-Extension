@@ -21,6 +21,9 @@
 						<h3>Search Reddit</h3>
 						<form id="searchform" name="searchform">
 							<input id="searchbox" name="searchbox" type="text" placeholder="Search..." ng-model="searchText"></input>
+							<br>
+							<input id="searchposts" value="1" name="method" type="radio" ng-model="radio"><label for="searchposts">Posts</label></input>
+							<input id="searchsubs" value="2" name="method" type="radio" ng-model="radio"><label for="searchsubs">Subreddits</label></input>
 						</form>
 						<h3>Popular Subreddits</h3>
 						<li ng-repeat="subreddit in subreddits" ng-class="subreddit.state">
@@ -85,7 +88,7 @@
 						
 						<div class="gutter">
 							<h3 class="score">{{post.score}}</h3>
-							<img src="{{post.thumbnail}}"  />
+							<img src="{{post.thumbnail}}"/>
 						</div>
 						
 						<div class="content">
@@ -103,13 +106,9 @@
 						<div style="clear:both;"></div>
 					</div>
 
-					<p class="self-text" 
-					ng-hide="!post.selftext_html" 
-					ng-bind-html-unsafe="post.selftext_html"></p>	
+					<p class="self-text" ng-hide="!post.selftext_html" ng-bind-html-unsafe="post.selftext_html"></p>	
 
-					<img src="{{post.full_image}}"
-						class="full-image"
-						ng-hide="!post.full_image"/>
+					<img src="{{post.full_image}}" class="full-image" alt="Image could not be loaded. URL: {{post.full_image}}" title="Image could not be loaded. URL: {{post.full_image}}"ng-hide="!post.full_image"/>
 						
 					<iframe class="full-video" type="text/html"
 					  src="{{post.embedded_video_url}}"
@@ -123,8 +122,8 @@
 						</div>
 						<div ng-hide="loading">
 						<!-- Share buttons -->
+						<h3 style="font-size: 20px;">Share!</h3>
 						<div id="share" ng-hide="!post.created_utc">
-
 							<a ng-click="copyUrl()" class="share-btn clipboard">
 								<i class="fa fa-clipboard"></i>
 							</a>
@@ -159,18 +158,18 @@
 								</textarea>
 							</h3>
 						</div>
-							<h3>Comments</h3>
-							<ul>
-								<li ng-repeat="comment in comments">
-									<h6 class="user small"><em>{{comment.data.author}}</em> {{comment.data.created_utc | utcdatetolocal | timeago}}</h6>
-									<p class="comment body">{{comment.data.body}}</p>
-									<ul class="replies">
-										<li ng-repeat="reply in comment.data.replies.data.children" >
-											<div ng-include src="'replies.html'"></div>
-										</li>
-									</ul>
-								</li>
-							</ul>
+						<h3>Comments</h3>
+						<ul>
+							<li ng-repeat="comment in comments">
+								<h6 class="user small"><em>{{comment.data.author}}</em> {{comment.data.created_utc | utcdatetolocal | timeago}}</h6>
+								<p class="comment body">{{comment.data.body}}</p>
+								<ul class="replies">
+									<li ng-repeat="reply in comment.data.replies.data.children" >
+										<div ng-include src="'replies.html'"></div>
+									</li>
+								</ul>
+							</li>
+						</ul>
 						</div>
 					</div>		
 				</div>

@@ -35,22 +35,31 @@ angular.module('communication', [])
 */
 myApp.controller('subredditController', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
 	$scope.loading = true;
+	$scope.radio = '1';
 	//pull out currently popular subreddits
 	$http.get('http://api.reddit.com/subreddits/popular').success(function (data) {
 		$scope.loading = false;
 		$scope.subreddits = data.data.children;
 	});
 
-	//catch user input into searchbox
-	$scope.$watch('searchText', function () {
-		if ($scope.searchText !== undefined) {
-			$rootScope.$emit('search_text', $scope.searchText);
+	var action = function () {
+		if ($scope.searchText !== undefined && $scope.searchText !== '') {
+			if ($scope.radio === '1') {
+				$rootScope.$emit('search_text', $scope.searchText);
+			} else if ($scope.radio === '2') {
+				$rootScope.$emit("search_text", 'subreddit:' + $scope.searchText);
+			}
 		}
-	});
+	};
+	//catch user input into searchbox
+	$scope.$watch('searchText', function () { action(); });
+	//or clicks on eith radio button
+	$scope.$watch('radio', function () { action(); });
 
 	//catch user click on a subreddit	
 	var lastLinkClicked = null;
 	$scope.selectSubreddit = function (post) {
+		$scope.searchText = '';
 		$rootScope.$emit('selected_subreddit', post.data.url);
 		if (lastLinkClicked !== null) {
 			lastLinkClicked.state = '';
@@ -152,7 +161,8 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 	};
 
 	$scope.openSubreddit = function () {
-		
+		var searchSubRedditQuery = 'subreddit:' + $scope.post.subreddit + '&sort=hot';
+		$rootScope.$emit('search_text', searchSubRedditQuery);
 	};
 
 	$rootScope.$on('selected_subreddit', function (name, url) {
@@ -176,6 +186,9 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 			$scope.post.thumbnail = post.thumbnail;
 			$scope.post.embedded_video_url = post.embedded_video_url;
 			$scope.post.full_image = post.full_image;
+			if (!post.full_image) {
+				console.log(post);
+			}
 			$scope.post.selftext_html = $('<div/>').html($scope.post.selftext_html).text();
 			$scope.comments = data[1].data.children;
 			$scope.shareText = 'Check out this post on Reddit: ' + $scope.rawUrl;
