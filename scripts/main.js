@@ -75,6 +75,7 @@ $scope.subreddit = false;
 $scope.search = false;
 	//activate this when text is input
 	$rootScope.$on('search_text', function (name, text) {
+		//console.log($(".infinite-results:last").parent());
 		$scope.subreddit = false;
 		$scope.search = true;
 		$scope.redditSearch = new redditSearch(text);
@@ -186,9 +187,6 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 			$scope.post.thumbnail = post.thumbnail;
 			$scope.post.embedded_video_url = post.embedded_video_url;
 			$scope.post.full_image = post.full_image;
-			if (!post.full_image) {
-				console.log(post);
-			}
 			$scope.post.selftext_html = $('<div/>').html($scope.post.selftext_html).text();
 			$scope.comments = data[1].data.children;
 			$scope.shareText = 'Check out this post on Reddit: ' + $scope.rawUrl;
@@ -205,11 +203,12 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 
 /*
 	jQuery infinte-scroller for the custom search results
-*/
-$(window).scroll(function() {
-	if  ($(window).scrollTop() == $(document).height() - $(window).height()) {
+*/document.onscroll = function() {
+	window.scrollTo(window.scrollX, window.scrollY - 15);
+	console.log('hi');
+	// if  ($(window).scrollTop() == $(document).height() - $(window).height()) {
 		if (angular.element('#post-list').scope().search) {
 			angular.element('#post-list').scope().redditSearch.nextPage();
 		}
-	}
-});
+	// }
+};

@@ -41,7 +41,7 @@
 			<div id="post-list-container">
 				<div id="post-list" ng-controller="postsController">
 					 <ul id="results" class="results" ng-hide="loading || redditSearch.loading">
-						<li ng-show="subreddit" ng-repeat="post in posts" ng-click="selectPost(post)" ng-class="post.state">
+						<li id="glance-results" ng-show="subreddit" ng-repeat="post in posts" ng-click="selectPost(post)" ng-class="post.state">
 								<div class="gutter">
 									<h4 class="score">{{post.data.score}}</h4>
 									<img src="{{post.data.thumbnail}}"/>
@@ -55,8 +55,8 @@
 								</div>
 								<div style="clear:both;"></div>
 						</li>
-						<div ng-show="search">
-	                    	<li id="infinite-results" class="results" ng-repeat="post in redditSearch.items" ng-click="selectResult(post)"> 
+						<div id="infinite-container" ng-show="search">
+	                    	<li id="infinite-results" class="infinite-results" ng-repeat="post in redditSearch.items" ng-click="selectResult(post)"> 
 	                            <div class="gutter">
 									<h4 class="score">{{post.score}}</h4>
 								</div>
@@ -67,7 +67,7 @@
 									</h6>
 									<h6 class="comment_count small">{{post.num_comments}} comments</h6>
 								</div>
-								<div clas="bottom" style="clear:both;"></div>
+								<div class="bottom" style="clear:both;"></div>
 	                    	</li>
 	                        <div id="noResults" ng-show="redditSearch.noResults"> No results found for your query. </div>
 	                        <div id="noMoreResults" ng-show="redditSearch.noMoreResults"> No more results found for your query. </div>
