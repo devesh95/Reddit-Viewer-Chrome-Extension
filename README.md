@@ -1,6 +1,11 @@
 # Reddit-Viewer-Chrome-Extension
 Classier in-browser viewer for Reddit that makes your surfing experience on Reddit just so much better. 
 
+Update -- Version 1.1
+* You can now search by posts or by subreddits.
+* Click on subreddit labels in posts to directly search for posts in that subreddit.
+* Infinite scroll applies for both kinds of search results.
+
 To use the beta release version first download the entire project as a zip file. Next:
 
 1. Visit chrome://extensions in your browser (or open up the Chrome menu by clicking the icon to the far right of the Omnibox:  The menu's icon is three horizontal bars. and select Extensions under the Tools menu to get to the same place).
