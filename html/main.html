@@ -96,7 +96,7 @@
 								<a href="{{rawUrl}}" target="_blank">
 									{{post.title}}
 								</a>
-								<span id="subredditCategory" ng-click="openSubreddit()">
+								<span title="Click to view top posts in {{post.subreddit}}!" id="subredditCategory" ng-click="openSubreddit()">
 									{{post.subreddit}}
 								</span>
 							</h2>
@@ -123,7 +123,7 @@
 						<div ng-hide="loading">
 						<!-- Share buttons -->
 						<h3 style="font-size: 20px;">Share!</h3>
-						<div id="share" ng-hide="!post.created_utc">
+						<div title="Click to share this post's Reddit URL! "id="share" ng-hide="!post.created_utc">
 							<a ng-click="copyUrl()" class="share-btn clipboard">
 								<i class="fa fa-clipboard"></i>
 							</a>
