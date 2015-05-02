@@ -5,6 +5,7 @@
 		<script type="text/javascript" src="../scripts/imports/jquery-1.7.2.min.js"></script>
 		<script type="text/javascript" src="../scripts/imports/jquery.timeago.js"></script>
 		<script type="text/javascript" src="../scripts/imports/angular.js"></script>
+		<script type="text/javascript" src="../scripts/imports/angular-sanitize.js"></script>
 		<script type="text/javascript" src="../scripts/main.js"></script>
 		<script type="text/javascript" src="../scripts/factories/redditSearchFactory.js"></script>
 		<link type="text/css" rel="stylesheet" href="../styles/reset.css"/>
@@ -40,11 +41,11 @@
 			
 			<div id="post-list-container">
 				<div id="post-list" ng-controller="postsController">
-					 <ul id="results" class="results" ng-hide="loading || redditSearch.loading">
-						<li id="glance-results" ng-show="subreddit" ng-repeat="post in posts" ng-click="selectPost(post)" ng-class="post.state">
+					 <ul id="results" class="results" ng-hide="loading || redditSearch.loading" avoid-errors>
+						<li id="glance-results" ng-show="subreddit" ng-repeat="post in posts" ng-click="selectPost(post)" ng-class="post.state" emit-last>
 								<div class="gutter">
 									<h4 class="score">{{post.data.score}}</h4>
-									<img src="{{post.data.thumbnail}}"/>
+									<img class="findMe" data-url="{{post.data.thumbnail}}"/>
 								</div>
 								<div class="content">
 									<h4 class="title">{{post.data.title}}</h4>
@@ -81,14 +82,14 @@
 			
 			<div id="post-container">
 				<div ng-controller="redditController" id="post">
-					<div class="header" ng-hide="!post.created_utc">
+					<div class="header" ng-hide="!post.created_utc || loading">
 						<div class="top">
-							<img src="{{post.subredditheader}}"/>
+							<img data-url="subredditheader"/>
 						</div>
 						
 						<div class="gutter">
 							<h3 class="score">{{post.score}}</h3>
-							<img src="{{post.thumbnail}}"/>
+							<img data-url="thumbnail"/>
 						</div>
 						
 						<div class="content">
@@ -106,15 +107,18 @@
 						<div style="clear:both;"></div>
 					</div>
 
-					<p class="self-text" ng-hide="!post.selftext_html" ng-bind-html-unsafe="post.selftext_html"></p>	
+					<p class="self-text" ng-hide="!post.selftext_html" ng-bind-html="post.selftext_html"></p>	
 
-					<img src="{{post.full_image}}" class="full-image" alt="Image could not be loaded. URL: {{post.full_image}}" title="Image could not be loaded. URL: {{post.full_image}}"ng-hide="!post.full_image"/>
+					<img data-url="full_image" class="full-image"  ng-hide="!post.full_image"/>
 						
-					<iframe class="full-video" type="text/html"
-					  src="{{post.embedded_video_url}}"
-					  ng-hide="!post.embedded_video_url"
-					  frameborder="0">		</iframe>
-
+					<webview id="video" class="full-video" type="text/html"
+					  src="{{trustSrc(post.embedded_video_url)}}"
+					  width="300"
+					  height="390"
+					  min-width="300"
+					  min-height="390"
+					  autosize="on"
+					  style="display: none"></webview>
 				
 					<div class="comments" ng-hide="!post.created_utc">
 						<div ng-show="loading" class="loading">

@@ -1,7 +1,7 @@
 {
    "app": {
-      "launch": {
-         "local_path": "html/main.html"
+      "background": {
+         "scripts": ["background.js"]
       }
    },
    "icons": {
@@ -10,9 +10,9 @@
       "48": "icons/48.png",
       "128": "icons/128.png"
    },
-   "description": "Make Reddit look as cool as Slack",
+   "description": "A super slick Reddit browsing experience.",
    "manifest_version": 2,
    "name": "Reddit++",
-   "permissions": [ "http://www.reddit.com/" ],
-   "version": "1"
+   "version": "1.2",
+   "permissions": ["<all_urls>", "webview"]
 }

@@ -5,10 +5,12 @@
 
 */
 
-var myApp = angular.module('reddit++', ['communication'])
-.config(function($httpProvider){
+var myApp = angular.module('reddit++', ['communication', 'ngSanitize'])
+.config(function ($httpProvider) {
+	/* Allow cross-origin HTTP requests */
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 });
+
 
 angular.module('communication', [])
 	.factory('commservice', function () {
@@ -73,9 +75,9 @@ myApp.controller('postsController', ['$rootScope', '$scope', '$http', 'redditSea
 $scope.loading = false;
 $scope.subreddit = false;
 $scope.search = false;
+
 	//activate this when text is input
 	$rootScope.$on('search_text', function (name, text) {
-		//console.log($(".infinite-results:last").parent());
 		$scope.subreddit = false;
 		$scope.search = true;
 		$scope.redditSearch = new redditSearch(text);
@@ -148,14 +150,20 @@ $scope.search = false;
 	};
 }]);
 
-myApp.controller('redditController', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
+myApp.controller('redditController', ['$rootScope', '$scope', '$http', '$sce', function ($rootScope, $scope, $http, $sce) {
 	//reset the scope posts when new category selected
 	var resetViews = function () {
 		$scope.comments = null;
 		$scope.loading = false;
 		$scope.post = null;
 		$scope.showUrl = false;
+		document.getElementById("video").terminate();
+		document.getElementById("video").style.display = 'none';
 	};
+
+	$scope.trustSrc = function(src) {
+      return $sce.trustAsResourceUrl(src);
+    };
 
 	$scope.copyUrl = function () {
 		$scope.showUrl = true;
@@ -174,6 +182,7 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 	});
 
 	var update = function (name, post) {
+		document.getElementById("video").terminate();
 		$scope.showUrl = false;
 		$scope.comments = null;
 		$scope.loading = true;
@@ -190,6 +199,31 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 			$scope.post.selftext_html = $('<div/>').html($scope.post.selftext_html).text();
 			$scope.comments = data[1].data.children;
 			$scope.shareText = 'Check out this post on Reddit: ' + $scope.rawUrl;
+			$scope.$emit('ready', $scope.post);
+		});
+		$scope.$on('ready', function (name, post) {
+			$("#post").find("img").each(function (i, elem) {
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', post[$(elem).data("url")], true);
+				xhr.responseType = 'blob';
+				xhr.onreadystatechange = function (e) {
+					if (xhr.readyState ==4) {
+                        var blob = window.URL.createObjectURL(xhr.response);
+						$(elem).attr('src', blob);
+						if ($(elem).hasClass('full_image')) {
+							$(elem).attr('alt', 'Image couldn\'t be loaded. URL: '+post[$(elem).data("url")]);
+						}
+					}
+				};
+				if (post[$(elem).data("url")] !== null && post[$(elem).data("url")] !== undefined) {
+					xhr.send();
+				}
+				document.getElementById("video").src = post.embedded_video_url;
+				document.getElementById("video").style.display = '';
+				if (!post.embedded_video_url) {
+					document.getElementById("video").style.display = 'none';
+				}
+			});
 		});
 	};
 	//populate the view field with the parsed data
@@ -201,11 +235,41 @@ myApp.controller('redditController', ['$rootScope', '$scope', '$http', function 
 	});
 }]);
 
+myApp.directive('avoidErrors', function() {
+	return function (scope, element, attrs) {
+		scope.$on('last', function (e) {
+			$(element).find(".findMe").each(function (i, elem) {
+				var xhr = new XMLHttpRequest();
+				scope.$watch('ready', function (e) {
+					xhr.open('GET', $(elem).data("url"), true);
+					xhr.responseType = 'blob';
+					xhr.onreadystatechange = function (e) {
+						if (xhr.readyState ==4 && xhr.status == 200) {
+                            var blob = window.URL.createObjectURL(xhr.response);
+							$(elem).attr('src', blob);
+						}
+					};
+					if ($(elem).data("url") !== null && $(elem).data("url") !== undefined) {
+						xhr.send();
+					}
+				});
+			});
+		});
+	};
+});
+
+myApp.directive('emitLast', function () {
+	return function (scope) {
+		if (scope.$last) {
+			scope.$emit('last');
+		}
+	};
+});
+	
 /*
 	jQuery infinte-scroller for the custom search results
 */document.onscroll = function() {
 	window.scrollTo(window.scrollX, window.scrollY - 15);
-	console.log('hi');
 	// if  ($(window).scrollTop() == $(document).height() - $(window).height()) {
 		if (angular.element('#post-list').scope().search) {
 			angular.element('#post-list').scope().redditSearch.nextPage();
