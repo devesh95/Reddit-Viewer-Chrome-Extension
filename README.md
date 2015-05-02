@@ -3,10 +3,15 @@
 ### Overview
 Reddit++ is a chrome extension that makes your Reddit surfing experience so much better. Browse through posts and subreddits and view full post previews. Reddit++ lets you glance at the top 25 posts in the most popular subreddits and even share posts via your favorite social media! 
 
-### Update: Version 1.10
+### Update: Version 1.20
+* Now compatible with Chrome's new App Launcher
+* Content-secure protocols followed by each XHR request via custom directives.
+
+Legacy features:
 * You can now search by posts or by subreddits.
 * Click on subreddit labels in posts to directly search for posts in that subreddit.
 * Infinite scroll applies for both kinds of search results.
+* Share via social media - Twitter, Facebook, Google+, LinkedIn
 
 ### Beta testing instructions
 1. Visit chrome://extensions in your browser (or open up the Chrome menu by clicking the icon to the far right of the Omnibox:  The menu's icon is three horizontal bars. and select Extensions under the Tools menu to get to the same place).
